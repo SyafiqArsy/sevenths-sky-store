@@ -2,7 +2,18 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CheckoutController;
+
+/*
+|--------------------------------------------------------------------------
+| Health Check
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/ping', function () {
     return response()->json([
@@ -10,45 +21,126 @@ Route::get('/ping', function () {
     ]);
 });
 
-//PUBLIK
+/*
+|--------------------------------------------------------------------------
+| Public Routes
+|--------------------------------------------------------------------------
+*/
+
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{slug}', [CategoryController::class, 'show']);
 
-//WITH TOKEN ACTIVE
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/{slug}', [ProductController::class, 'show']);
+
+/*
+|--------------------------------------------------------------------------
+| Authenticated Routes
+|--------------------------------------------------------------------------
+*/
+
 Route::middleware('auth:sanctum')->group(function () {
 
+    // Auth
     Route::get('/me', [AuthController::class, 'me']);
-
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Cart
+    Route::get('/cart', [CartController::class, 'index']);
+
+    Route::post(
+        '/cart/items',
+        [CartController::class, 'store']
+    );
+
+    Route::put(
+        '/cart/items/{cartItem}',
+        [CartController::class, 'update']
+    );
+
+    Route::delete(
+        '/cart/items/{cartItem}',
+        [CartController::class, 'destroy']
+    );
+
+    // Checkout
+    Route::post(
+        '/checkout',
+        [CheckoutController::class, 'store']
+    );
+
+    // Orders
+    Route::get(
+        '/orders',
+        [OrderController::class, 'index']
+    );
+
+    Route::get(
+        '/orders/{order}',
+        [OrderController::class, 'show']
+    );
 });
 
-//CHECK ADMIN
-Route::middleware(['auth:sanctum', 'admin'])
-    ->get('/admin-test', function () {
-        return response()->json([
-            'message' => 'Admin Access Granted'
-        ]);
-    });
+/*
+|--------------------------------------------------------------------------
+| Admin Routes
+|--------------------------------------------------------------------------
+*/
 
-//ADMIN
-Route::middleware(['auth:sanctum', 'admin'])
-    ->prefix('admin')
-    ->group(function () {
+Route::middleware([
+    'auth:sanctum',
+    'admin'
+])->prefix('admin')->group(function () {
 
-        Route::post(
-            '/categories',
-            [CategoryController::class, 'store']
-        );
+    // Upload
+    Route::post(
+        '/upload-test',
+        [UploadController::class, 'test']
+    );
 
-        Route::put(
-            '/categories/{category}',
-            [CategoryController::class, 'update']
-        );
+    // Categories
+    Route::post(
+        '/categories',
+        [CategoryController::class, 'store']
+    );
 
-        Route::delete(
-            '/categories/{category}',
-            [CategoryController::class, 'destroy']
-        );
-    });
+    Route::put(
+        '/categories/{category}',
+        [CategoryController::class, 'update']
+    );
+
+    Route::delete(
+        '/categories/{category}',
+        [CategoryController::class, 'destroy']
+    );
+
+    // Products
+    Route::post(
+        '/products',
+        [ProductController::class, 'store']
+    );
+
+    Route::put(
+        '/products/{product}',
+        [ProductController::class, 'update']
+    );
+
+    Route::delete(
+        '/products/{product}',
+        [ProductController::class, 'destroy']
+    );
+
+    // Orders
+    Route::get(
+        '/orders',
+        [OrderController::class, 'adminIndex']
+    );
+
+    Route::put(
+        '/orders/{order}/status',
+        [OrderController::class, 'updateStatus']
+    );
+});

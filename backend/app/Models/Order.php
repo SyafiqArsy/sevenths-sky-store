@@ -15,6 +15,8 @@ class Order extends Model
         'city',
         'postal_code',
         'total_price',
+        'shipping_cost',
+        'grand_total',
         'payment_status',
         'order_status',
         'midtrans_order_id',

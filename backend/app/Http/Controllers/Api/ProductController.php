@@ -42,7 +42,7 @@ class ProductController extends Controller
             )
             ->where('is_active', true)
             ->latest()
-            ->paginate(10);
+            ->get();
 
         return response()->json([
             'success' => true,

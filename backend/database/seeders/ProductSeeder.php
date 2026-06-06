@@ -87,9 +87,7 @@ class ProductSeeder extends Seeder
                     'stock' =>
                         rand(10, 100),
 
-                    'image' =>
-                        'https://placehold.co/600x600?text=' .
-                        urlencode($name),
+                    'image' => '/images/products/default.jpg',
 
                     'image_public_id' => null,
 

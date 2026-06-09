@@ -7,6 +7,7 @@ use App\Services\CategoryService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Category\StoreCategoryRequest;
 use App\Http\Requests\Category\UpdateCategoryRequest;
+use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
@@ -19,6 +20,31 @@ class CategoryController extends Controller
         return response()->json([
             'success' => true,
             'data' => Category::latest()->get(),
+        ]);
+    }
+
+    public function adminIndex(Request $request)
+    {
+        $categories = Category::query()
+
+            ->when(
+                $request->search,
+                fn ($query) =>
+                $query->where(
+                    'name',
+                    'like',
+                    '%' .
+                    $request->search .
+                    '%'
+                )
+            )
+
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $categories,
         ]);
     }
 

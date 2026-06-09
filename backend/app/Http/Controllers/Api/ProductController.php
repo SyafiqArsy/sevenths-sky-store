@@ -50,11 +50,44 @@ class ProductController extends Controller
         ]);
     }
 
+    public function adminIndex(Request $request)
+    {
+        $products = Product::with('category')
+
+            ->when(
+                $request->search,
+                fn ($query) =>
+                $query->where(
+                    'name',
+                    'like',
+                    '%' . $request->search . '%'
+                )
+            )
+
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $products,
+        ]);
+    }
+
     public function show(string $slug)
     {
         $product = Product::with('category')
             ->where('slug', $slug)
             ->firstOrFail();
+
+        return response()->json([
+            'success' => true,
+            'data' => $product,
+        ]);
+    }
+
+    public function adminShow(Product $product)
+    {
+        $product->load('category');
 
         return response()->json([
             'success' => true,

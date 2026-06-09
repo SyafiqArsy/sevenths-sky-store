@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CheckoutController;
+use App\Http\Controllers\Api\AdminDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +48,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Auth
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Dasboard
+    Route::get(
+        '/admin/dashboard',
+        [AdminDashboardController::class, 'index']
+    );
 
     // Cart
     Route::get('/cart', [CartController::class, 'index']);
@@ -102,6 +109,11 @@ Route::middleware([
     );
 
     // Categories
+    Route::get(
+        '/categories',
+        [CategoryController::class, 'adminIndex']
+    );
+
     Route::post(
         '/categories',
         [CategoryController::class, 'store']
@@ -118,6 +130,16 @@ Route::middleware([
     );
 
     // Products
+    Route::get(
+        '/products',
+        [ProductController::class, 'adminIndex']
+    );
+
+    Route::get(
+        '/products/{product}',
+        [ProductController::class, 'adminShow']
+    );
+
     Route::post(
         '/products',
         [ProductController::class, 'store']
@@ -137,6 +159,11 @@ Route::middleware([
     Route::get(
         '/orders',
         [OrderController::class, 'adminIndex']
+    );
+
+    Route::get(
+        '/orders/{order}',
+        [OrderController::class, 'adminShow']
     );
 
     Route::put(

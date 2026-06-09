@@ -1,18 +1,22 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { login } from "@/src/lib/auth";
-import Link from "next/link";
+import { register } from "@/src/lib/auth";
 
-export default function LoginForm() {
+export default function RegisterForm() {
   const router = useRouter();
 
-  const [email, setEmail] =
-    useState("");
-
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] =
     useState("");
+
+  const [
+    passwordConfirmation,
+    setPasswordConfirmation,
+  ] = useState("");
 
   const [loading, setLoading] =
     useState(false);
@@ -25,13 +29,19 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      const result = await login(
+      const result = await register(
+        name,
         email,
-        password
+        password,
+        passwordConfirmation
       );
 
       if (!result.success) {
-        alert(result.message);
+        alert(
+          result.message ||
+            "Registration failed"
+        );
+
         return;
       }
 
@@ -53,13 +63,23 @@ export default function LoginForm() {
     >
       <div>
         <h1 className="text-4xl font-bold">
-          Login
+          Create Account
         </h1>
 
         <p className="mt-2 text-gray-500">
-          Welcome back.
+          Join Seventh Sky Store.
         </p>
       </div>
+
+      <input
+        type="text"
+        placeholder="Full Name"
+        value={name}
+        onChange={(e) =>
+          setName(e.target.value)
+        }
+        className="w-full border rounded-xl px-4 py-3"
+      />
 
       <input
         type="email"
@@ -81,22 +101,34 @@ export default function LoginForm() {
         className="w-full border rounded-xl px-4 py-3"
       />
 
+      <input
+        type="password"
+        placeholder="Confirm Password"
+        value={passwordConfirmation}
+        onChange={(e) =>
+          setPasswordConfirmation(
+            e.target.value
+          )
+        }
+        className="w-full border rounded-xl px-4 py-3"
+      />
+
       <button
         disabled={loading}
         className="w-full bg-black text-white py-3 rounded-xl"
       >
         {loading
-          ? "Loading..."
-          : "Login"}
+          ? "Creating Account..."
+          : "Register"}
       </button>
 
       <p className="text-center text-sm text-gray-500">
-        Don't have an account?{" "}
+        Already have an account?{" "}
         <Link
-          href="/register"
-          className="font-medium text-black"
+          href="/login"
+          className="text-black font-medium"
         >
-          Register
+          Login
         </Link>
       </p>
     </form>

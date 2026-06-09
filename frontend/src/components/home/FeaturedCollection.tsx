@@ -29,7 +29,7 @@ const secondRowLoop = [
 
 export default function FeaturedCollection() {
   return (
-    <section className="py-24 bg-black overflow-hidden">
+    <section id="featured-collection" className="py-24 bg-black overflow-hidden">
       <div className="text-center mb-12">
         <p className="uppercase tracking-[0.3em] text-gray-400 text-sm">
           Featured Collection

@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 
 const slides = [
   {
@@ -12,12 +13,12 @@ const slides = [
     subtitle: "Premium Fashion Beyond Limits",
   },
   {
-    image: "/images/hero/1.png",
+    image: "/images/hero/2.png",
     title: "MOVE WITH CONFIDENCE",
     subtitle: "Designed For Everyday Expression",
   },
   {
-    image: "/images/hero/1.png",
+    image: "/images/hero/3.png",
     title: "MODERN ESSENTIALS",
     subtitle: "Timeless Pieces For Every Wardrobe",
   },
@@ -84,9 +85,11 @@ export default function HeroCarousel() {
                   {slide.subtitle}
                 </p>
 
-                <button className="mt-8 bg-white text-black px-10 py-4 font-semibold rounded-md hover:bg-gray-200 transition">
-                  SHOP NOW
-                </button>
+                <Link href="/products"> 
+                  <button className="mt-8 bg-white text-black px-10 py-4 font-semibold rounded-md hover:bg-gray-200 transition">
+                    SHOP NOW
+                  </button>
+                </Link>
 
                 <div className="mt-8 flex justify-center gap-3">
                   {slides.map((_, dotIndex) => (

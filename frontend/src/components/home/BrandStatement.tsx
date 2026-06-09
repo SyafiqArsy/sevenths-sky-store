@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function BrandStatement() {
   return (
     <section className="relative bg-black text-white overflow-hidden">
@@ -21,9 +23,11 @@ export default function BrandStatement() {
           trends.
         </p>
 
-        <button className="mt-12 border border-white px-8 py-4 uppercase tracking-wider text-sm font-medium hover:bg-white hover:text-black transition duration-300">
-          Explore Collection
-        </button>
+        <Link href="/products"> 
+          <button className="mt-12 border border-white px-8 py-4 uppercase tracking-wider text-sm font-medium hover:bg-white hover:text-black transition duration-300">
+            Explore Collection
+          </button>
+        </Link>
       </div>
     </section>
   );

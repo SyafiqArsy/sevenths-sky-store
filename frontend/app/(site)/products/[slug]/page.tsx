@@ -3,6 +3,7 @@ import {getProduct,getProducts,} from "@/src/lib/api";
 import QuantitySelector from "@/src/components/product/QuantitySelector";
 import SizeSelector from "@/src/components/product/SizeSelector";
 import ProductCard from "@/src/components/product/ProductCard";
+import ProductActions from "@/src/components/product/ProductActions";
 
 type PageProps = {
   params: Promise<{
@@ -89,14 +90,12 @@ export default async function ProductDetailPage({
                 Quantity
             </p>
 
-            <QuantitySelector
-                stock={product.stock}
-            />
             </div>
 
-            <button className="mt-10 w-full bg-black text-white py-4 rounded-full font-medium hover:opacity-90 transition">
-            Add To Cart
-            </button>
+            <ProductActions
+              productId={product.id}
+              stock={product.stock}
+            />
 
           </div>
 

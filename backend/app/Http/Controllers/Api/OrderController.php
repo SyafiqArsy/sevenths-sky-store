@@ -38,11 +38,37 @@ class OrderController extends Controller
         ]);
     }
 
-    public function adminIndex()
+    public function adminShow(Order $order)
     {
-        $orders = Order::with('user', 'items')
-            ->latest()
-            ->get();
+        $order->load('user', 'items');
+
+        return response()->json([
+            'success' => true,
+            'data' => $order,
+        ]);
+    }
+
+    public function adminIndex(Request $request)
+    {
+        $orders = Order::with([
+            'user',
+            'items'
+        ])
+
+        ->when(
+            $request->search,
+            fn ($query) =>
+            $query->where(
+                'order_number',
+                'like',
+                '%' .
+                $request->search .
+                '%'
+            )
+        )
+
+        ->latest()
+        ->get();
 
         return response()->json([
             'success' => true,

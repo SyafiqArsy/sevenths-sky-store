@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
     <footer className="bg-black text-white">
@@ -25,21 +27,30 @@ export default function Footer() {
 
             <ul className="space-y-3 text-gray-400">
               <li>
-                <a href="#" className="hover:text-white transition">
+                <Link
+                  href="/#new-arrival"
+                  className="hover:text-white transition"
+                >
                   New Arrival
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a href="#" className="hover:text-white transition">
+                <Link
+                  href="/#collections"
+                  className="hover:text-white transition"
+                >
                   Collections
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a href="#" className="hover:text-white transition">
-                  All Products
-                </a>
+                <Link
+                  href="/products"
+                  className="hover:text-white transition"
+                >
+                  Shop
+                </Link>
               </li>
             </ul>
           </div>
@@ -52,15 +63,21 @@ export default function Footer() {
 
             <ul className="space-y-3 text-gray-400">
               <li>
-                <a href="#" className="hover:text-white transition">
+                <Link
+                  href="/contact"
+                  className="hover:text-white transition"
+                >
                   About Us
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a href="#" className="hover:text-white transition">
+                <Link
+                  href="/contact"
+                  className="hover:text-white transition"
+                >
                   Our Story
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -73,21 +90,30 @@ export default function Footer() {
 
             <ul className="space-y-3 text-gray-400">
               <li>
-                <a href="#" className="hover:text-white transition">
+                <Link
+                  href="/contact"
+                  className="hover:text-white transition"
+                >
                   Contact
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a href="#" className="hover:text-white transition">
+                <Link
+                  href="/contact#faq"
+                  className="hover:text-white transition"
+                >
                   FAQ
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a href="#" className="hover:text-white transition">
-                  Shipping
-                </a>
+                <Link
+                  href="/contact#policies"
+                  className="hover:text-white transition"
+                >
+                  Policies
+                </Link>
               </li>
             </ul>
           </div>
@@ -102,15 +128,15 @@ export default function Footer() {
           </p>
 
           <div className="flex gap-6 text-sm text-gray-400">
-            <a href="#" className="hover:text-white transition">
+            <a href="https://instagram.com/syaqars" className="hover:text-white transition">
               Instagram
             </a>
 
-            <a href="#" className="hover:text-white transition">
+            <a href="https://tiktok.com/@langiterakhir" className="hover:text-white transition">
               TikTok
             </a>
 
-            <a href="#" className="hover:text-white transition">
+            <a href="https://linkedin.com/in/syafiq-arsy" className="hover:text-white transition">
               LinkedIn
             </a>
           </div>

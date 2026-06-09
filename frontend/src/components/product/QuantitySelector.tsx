@@ -1,16 +1,16 @@
 "use client";
 
-import { useState } from "react";
-
 type Props = {
   stock: number;
+  quantity: number;
+  setQuantity: (value: number) => void;
 };
 
 export default function QuantitySelector({
   stock,
+  quantity,
+  setQuantity,
 }: Props) {
-  const [quantity, setQuantity] = useState(1);
-
   const increase = () => {
     if (quantity < stock) {
       setQuantity(quantity + 1);

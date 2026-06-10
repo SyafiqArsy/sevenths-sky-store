@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 
 import "./globals.css";
 
@@ -32,11 +33,22 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body>
+
+        <Script
+          src="https://app.sandbox.midtrans.com/snap/snap.js"
+          data-client-key={
+            process.env
+              .NEXT_PUBLIC_MIDTRANS_CLIENT_KEY
+          }
+          strategy="beforeInteractive"
+        />
+
         <AuthProvider>
           <CartProvider>
             {children}
           </CartProvider>
         </AuthProvider>
+
       </body>
     </html>
   );

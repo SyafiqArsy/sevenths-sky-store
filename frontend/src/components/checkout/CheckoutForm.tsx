@@ -112,11 +112,46 @@ async function handleSubmit(
         return;
       }
 
-    alert("Checkout Success");
+    const snapToken =
+      result.data.snap_token;
 
-    router.replace("/orders");
+    window.snap.pay(
+      snapToken,
+      {
+        onSuccess: function () {
 
-    router.refresh();
+          alert(
+            "Payment successful"
+          );
+
+          router.push("/orders");
+          router.refresh();
+        },
+
+        onPending: function () {
+
+          alert(
+            "Waiting for payment"
+          );
+
+          router.push("/orders");
+        },
+
+        onError: function () {
+
+          alert(
+            "Payment failed"
+          );
+        },
+
+        onClose: function () {
+
+          alert(
+            "Payment popup closed"
+          );
+        },
+      }
+    );
 
     } catch {
       alert(

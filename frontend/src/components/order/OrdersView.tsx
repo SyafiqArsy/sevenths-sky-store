@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
 import { getOrders } from "@/src/lib/order";
+import { loadMidtransScript } from "@/src/lib/loadMidtrans";
 
 type Order = {
   id: number;
@@ -12,7 +12,11 @@ type Order = {
   payment_status: string;
   order_status: string;
   created_at: string;
+
+  midtrans_token: string | null;
 };
+
+
 
 export default function OrdersView() {
   const [orders, setOrders] =
@@ -20,6 +24,34 @@ export default function OrdersView() {
 
   const [loading, setLoading] =
     useState(true);
+
+  async function handlePayNow(
+    token: string
+  ) {
+
+    await loadMidtransScript();
+
+    // eslint-disable-next-line
+    window.snap.pay(token, {
+
+      onSuccess() {
+
+        window.location.reload();
+      },
+
+      onPending() {
+
+        window.location.reload();
+      },
+
+      onClose() {
+
+        console.log(
+          "Payment popup closed"
+        );
+      },
+    });
+  }
 
   useEffect(() => {
     async function loadOrders() {
@@ -125,12 +157,47 @@ export default function OrdersView() {
               </p>
             </div>
 
-            <Link
-              href={`/orders/${order.id}`}
-              className="px-6 py-3 border rounded-full hover:bg-black hover:text-white transition"
-            >
-              View Details
-            </Link>
+            <div className="flex gap-3">
+
+              <Link
+                href={`/orders/${order.id}`}
+                className="
+                  px-6
+                  py-3
+                  border
+                  rounded-full
+                  hover:bg-black
+                  hover:text-white
+                  transition
+                "
+              >
+                View Details
+              </Link>
+
+              {order.payment_status ===
+                "pending" &&
+
+                order.midtrans_token && (
+
+                  <button
+                    onClick={() =>
+                      handlePayNow(
+                        order.midtrans_token!
+                      )
+                    }
+                    className="
+                      px-6
+                      py-3
+                      bg-black
+                      text-white
+                      rounded-full
+                    "
+                  >
+                    Pay Now
+                  </button>
+              )}
+
+            </div>
 
           </div>
         </div>

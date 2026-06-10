@@ -1,15 +1,20 @@
+import AdminGuard from "@/src/components/admin/AdminGuard";
 import AdminDashboardView from "@/src/components/admin/AdminDashboardView";
 
 export default function AdminPage() {
   return (
-    <div className="p-10">
+    <AdminGuard>
 
-      <h1 className="text-4xl font-bold">
-        Dashboard
-      </h1>
+      <div className="p-10">
 
-      <AdminDashboardView />
+        <h1 className="text-4xl font-bold">
+          Dashboard
+        </h1>
 
-    </div>
+        <AdminDashboardView />
+
+      </div>
+
+    </AdminGuard>
   );
 }

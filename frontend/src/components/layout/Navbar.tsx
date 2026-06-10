@@ -61,15 +61,27 @@ export default function Navbar() {
 
           {user && (
             <div className="flex items-center gap-4">
+
               <Link
                 href="/orders"
                 className="text-sm uppercase"
               >
                 My Orders
               </Link>
+
+              {user.role === "admin" && (
+                <Link
+                  href="/admin"
+                  className="text-sm uppercase"
+                >
+                  Dashboard
+                </Link>
+              )}
+
               <span className="text-sm">
                 Hi, {user.name}
               </span>
+
             </div>
           )}
 

@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Services\MidtransService;
 
 class CheckoutController extends Controller
 {
@@ -99,6 +100,41 @@ class CheckoutController extends Controller
                 );
             }
 
+            $items = [];
+
+            foreach ($order->items as $item) {
+
+                $items[] = [
+                    'id' => $item->product_id,
+                    'price' => (int) $item->product_price,
+                    'quantity' => $item->quantity,
+                    'name' => $item->product_name,
+                ];
+            }
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $order->order_number,
+                    'gross_amount' => (int) $order->grand_total,
+                ],
+
+                'customer_details' => [
+                    'first_name' => $order->recipient_name,
+                    'phone' => $order->phone,
+                ],
+
+                'item_details' => $items,
+            ];
+
+            $snapToken = MidtransService::createSnapToken(
+                $params
+            );
+
+            $order->update([
+                'midtrans_order_id' => $order->order_number,
+                'midtrans_token' => $snapToken,
+            ]);
+
             $cart->items()->delete();
 
             return response()->json([
@@ -109,6 +145,7 @@ class CheckoutController extends Controller
                     'order_number' => $order->order_number,
                     'grand_total' => $order->grand_total,
                     'payment_status' => $order->payment_status,
+                    'snap_token' => $snapToken,
                 ]
             ]);
         });

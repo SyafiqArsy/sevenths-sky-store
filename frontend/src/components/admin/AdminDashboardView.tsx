@@ -28,12 +28,18 @@ export default function AdminDashboardView() {
 
   useEffect(() => {
 
+    console.log("Dashboard mounted");
     async function loadStats() {
 
       const token =
         localStorage.getItem("token");
 
-      if (!token) return;
+        console.log("Token:", token);
+
+      if (!token) {
+        setLoading(false);
+        return;
+    }
 
       const result =
         await getDashboardStats(

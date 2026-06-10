@@ -195,7 +195,7 @@ export default function CartView() {
         {items.length > 0 && (
         <Link
             href="/checkout"
-            className="mt-8 block w-full text-center bg-black text-white py-4 rounded-full"
+            className="mt-8 block w-full text-center bg-black !text-white py-4 rounded-full"
         >
             Checkout
         </Link>

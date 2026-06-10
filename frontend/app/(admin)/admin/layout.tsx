@@ -1,4 +1,5 @@
 import AdminSidebar from "@/src/components/admin/AdminSidebar";
+import AdminGuard from "@/src/components/admin/AdminGuard";
 
 export default function AdminLayout({
   children,
@@ -6,20 +7,25 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen">
+    <AdminGuard>
 
-      <AdminSidebar />
+      <div className="flex h-screen">
 
-      <main
-        className="
-          flex-1
-          overflow-y-auto
-          p-8
-        "
-      >
-        {children}
-      </main>
+        <AdminSidebar />
 
-    </div>
+        <main
+          className="
+            flex-1
+            overflow-y-auto
+            p-8
+          "
+        >
+          {children}
+        </main>
+
+      </div>
+
+    </AdminGuard>
+
   );
 }

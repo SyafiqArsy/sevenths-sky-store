@@ -10,6 +10,7 @@ export default function AdminGuard({
 }: {
   children: React.ReactNode;
 }) {
+
   const router = useRouter();
 
   const {
@@ -38,11 +39,7 @@ export default function AdminGuard({
   ]);
 
   if (loading) {
-    return (
-      <div className="p-10">
-        Loading...
-      </div>
-    );
+    return null;
   }
 
   if (!user) {

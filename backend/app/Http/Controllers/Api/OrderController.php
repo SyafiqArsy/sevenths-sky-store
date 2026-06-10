@@ -85,8 +85,88 @@ class OrderController extends Controller
             ]
         ]);
 
+        $currentStatus =
+            $order->order_status;
+
+        $newStatus =
+            $request->order_status;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Valid Status Flow
+        |--------------------------------------------------------------------------
+        */
+
+        $allowedTransitions = [
+
+            'pending' => [
+                'processing',
+                'cancelled',
+            ],
+
+            'processing' => [
+                'shipped',
+            ],
+
+            'shipped' => [
+                'completed',
+            ],
+
+            'completed' => [],
+
+            'cancelled' => [],
+        ];
+
+        /*
+        |--------------------------------------------------------------------------
+        | Prevent Invalid Transition
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !in_array(
+                $newStatus,
+                $allowedTransitions[
+                    $currentStatus
+                ]
+            )
+        ) {
+
+            return response()->json([
+                'success' => false,
+                'message' =>
+                    'Invalid status transition',
+            ], 422);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Prevent Processing Unpaid Orders
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $order->payment_status !== 'paid'
+            &&
+            in_array(
+                $newStatus,
+                [
+                    'processing',
+                    'shipped',
+                    'completed',
+                ]
+            )
+        ) {
+
+            return response()->json([
+                'success' => false,
+                'message' =>
+                    'Order has not been paid',
+            ], 422);
+        }
+
         $order->update([
-            'order_status' => $request->order_status
+            'order_status' => $newStatus,
         ]);
 
         return response()->json([

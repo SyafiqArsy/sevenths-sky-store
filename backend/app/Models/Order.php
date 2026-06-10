@@ -21,6 +21,13 @@ class Order extends Model
         'order_status',
         'midtrans_order_id',
         'midtrans_token',
+        'transaction_id',
+        'payment_type',
+        'paid_at',
+    ];
+
+    protected $casts = [
+        'paid_at' => 'datetime',
     ];
 
     public function user()

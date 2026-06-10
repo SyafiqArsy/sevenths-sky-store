@@ -31,10 +31,7 @@ class MidtransController extends Controller
             $serverKey
         );
 
-        if (
-            $generatedSignature !==
-            $request->signature_key
-        ) {
+        if ($generatedSignature !== $request->signature_key) {
 
             Log::warning('INVALID MIDTRANS SIGNATURE', [
                 'order_id' => $request->order_id,
@@ -52,10 +49,12 @@ class MidtransController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $order = Order::where(
-            'midtrans_order_id',
-            $request->order_id
-        )->first();
+        $order = Order::with('items.product')
+            ->where(
+                'midtrans_order_id',
+                $request->order_id
+            )
+            ->first();
 
         if (!$order) {
 
@@ -69,41 +68,163 @@ class MidtransController extends Controller
             ], 404);
         }
 
+        $transactionStatus =
+            $request->transaction_status;
+
+        Log::info('MIDTRANS TRANSACTION STATUS', [
+            'order_id' => $request->order_id,
+            'status' => $transactionStatus,
+        ]);
+
         /*
         |--------------------------------------------------------------------------
-        | Update Status
+        | Settlement (Paid)
         |--------------------------------------------------------------------------
         */
 
-        switch ($request->transaction_status) {
+        if (
+            $transactionStatus === 'settlement'
+            ||
+            (
+                $transactionStatus === 'capture'
+                &&
+                $request->fraud_status === 'accept'
+            )
+        ) {
 
-            case 'settlement':
+            if ($order->payment_status === 'paid') {
 
-                $order->update([
-                    'payment_status' => 'paid',
-                    'order_status' => 'processing',
+                Log::info('ORDER ALREADY PAID', [
+                    'order_id' => $order->id,
                 ]);
 
-                break;
-
-            case 'expire':
-
-                $order->update([
-                    'payment_status' => 'expired',
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Already processed',
                 ]);
+            }
 
-                break;
+            $order->update([
+                'payment_status' => 'paid',
+                'order_status' => 'processing',
 
-            case 'cancel':
-            case 'deny':
-            case 'failure':
+                'transaction_id'
+                    => $request->transaction_id,
 
-                $order->update([
-                    'payment_status' => 'failed',
-                ]);
+                'payment_type'
+                    => $request->payment_type,
 
-                break;
+                'paid_at'
+                    => $request->settlement_time
+                        ?? now(),
+            ]);
+
+            Log::info('ORDER MARKED AS PAID', [
+                'order_id' => $order->id,
+            ]);
+
+            return response()->json([
+                'success' => true,
+            ]);
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Expired
+        |--------------------------------------------------------------------------
+        */
+
+        if ($transactionStatus === 'expire') {
+
+            if ($order->payment_status !== 'pending') {
+
+                return response()->json([
+                    'success' => true,
+                ]);
+            }
+
+            foreach ($order->items as $item) {
+
+                if ($item->product) {
+
+                    $item->product->increment(
+                        'stock',
+                        $item->quantity
+                    );
+                }
+            }
+
+            $order->update([
+                'payment_status' => 'expired',
+            ]);
+
+            Log::info('ORDER EXPIRED', [
+                'order_id' => $order->id,
+            ]);
+
+            return response()->json([
+                'success' => true,
+            ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Failed / Cancelled
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            in_array(
+                $transactionStatus,
+                [
+                    'cancel',
+                    'deny',
+                    'failure',
+                ]
+            )
+        ) {
+
+            if ($order->payment_status !== 'pending') {
+
+                return response()->json([
+                    'success' => true,
+                ]);
+            }
+
+            foreach ($order->items as $item) {
+
+                if ($item->product) {
+
+                    $item->product->increment(
+                        'stock',
+                        $item->quantity
+                    );
+                }
+            }
+
+            $order->update([
+                'payment_status' => 'failed',
+            ]);
+
+            Log::info('ORDER FAILED', [
+                'order_id' => $order->id,
+            ]);
+
+            return response()->json([
+                'success' => true,
+            ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Other Status
+        |--------------------------------------------------------------------------
+        */
+
+        Log::info('MIDTRANS STATUS IGNORED', [
+            'order_id' => $order->id,
+            'status' => $transactionStatus,
+        ]);
 
         return response()->json([
             'success' => true,

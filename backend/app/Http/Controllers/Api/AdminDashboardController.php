@@ -26,9 +26,10 @@ class AdminDashboardController extends Controller
                     => Order::count(),
 
                 'total_revenue'
-                    => Order::sum(
-                        'grand_total'
-                    ),
+                => Order::where(
+                    'payment_status',
+                    'paid'
+                )->sum('grand_total')
             ]
         ]);
     }

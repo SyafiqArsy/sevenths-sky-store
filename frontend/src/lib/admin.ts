@@ -250,3 +250,20 @@ export async function getDashboardStats(
 
   return response.json();
 }
+
+export async function getAdminOrder(
+  token: string,
+  id: number
+) {
+  const response = await fetch(
+    `${API_URL}/admin/orders/${id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
+    }
+  );
+
+  return response.json();
+}

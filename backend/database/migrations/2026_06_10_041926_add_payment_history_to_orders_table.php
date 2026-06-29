@@ -11,16 +11,13 @@ return new class extends Migration
         Schema::table('orders', function (Blueprint $table) {
 
             $table->string('transaction_id')
-                ->nullable()
-                ->after('midtrans_token');
+                ->nullable();
 
             $table->string('payment_type')
-                ->nullable()
-                ->after('transaction_id');
+                ->nullable();
 
             $table->timestamp('paid_at')
-                ->nullable()
-                ->after('payment_type');
+                ->nullable();
         });
     }
 

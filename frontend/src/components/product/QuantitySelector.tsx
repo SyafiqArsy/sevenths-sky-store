@@ -24,21 +24,23 @@ export default function QuantitySelector({
   };
 
   return (
-    <div className="flex items-center border rounded-full w-fit overflow-hidden">
+    <div className="flex items-center border border-gray-200 rounded-full w-fit overflow-hidden bg-gray-50/50">
       <button
         onClick={decrease}
-        className="px-5 py-3 hover:bg-gray-100"
+        disabled={quantity <= 1}
+        className="px-5 py-3 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       >
         −
       </button>
 
-      <span className="px-6 font-medium">
+      <span className="px-6 font-semibold text-sm min-w-[3rem] text-center">
         {quantity}
       </span>
 
       <button
         onClick={increase}
-        className="px-5 py-3 hover:bg-gray-100"
+        disabled={quantity >= stock}
+        className="px-5 py-3 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
       >
         +
       </button>

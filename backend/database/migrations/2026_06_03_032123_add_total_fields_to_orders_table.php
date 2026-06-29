@@ -11,12 +11,10 @@ return new class extends Migration
         Schema::table('orders', function (Blueprint $table) {
 
             $table->decimal('shipping_cost', 12, 2)
-                ->default(0)
-                ->after('total_price');
+                ->default(0);
 
             $table->decimal('grand_total', 12, 2)
-                ->default(0)
-                ->after('shipping_cost');
+                ->default(0);
 
         });
     }

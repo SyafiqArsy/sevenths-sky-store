@@ -1,8 +1,11 @@
 "use client";
 
-import {useEffect,useState,} from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {getAdminCategories,createProduct,} from "@/src/lib/admin";
+import { motion } from "framer-motion";
+import { Upload } from "lucide-react";
+import { getAdminCategories, createProduct } from "@/src/lib/admin";
+import { useToast } from "@/src/context/ToastContext";
 
 type Category = {
   id: number;
@@ -10,256 +13,197 @@ type Category = {
 };
 
 export default function CreateProductForm() {
+  const router = useRouter();
+  const { showToast } = useToast();
 
-    const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [image, setImage] = useState<File | null>(null);
+  const [preview, setPreview] = useState("");
 
-    const [loading, setLoading] =
-        useState(false);
+  const [form, setForm] = useState({
+    category_id: "",
+    name: "",
+    description: "",
+    price: "",
+    stock: "",
+    is_active: true,
+  });
 
-    const [categories, setCategories] =
-        useState<Category[]>([]);
+  useEffect(() => {
+    async function loadCategories() {
+      const token = localStorage.getItem("token");
 
-    const [image, setImage] =
-        useState<File | null>(null);
+      if (!token) return;
 
-    const [preview, setPreview] =
-        useState("");
+      const result = await getAdminCategories(token);
 
-    const [form, setForm] = useState({
-        category_id: "",
-        name: "",
-        description: "",
-        price: "",
-        stock: "",
-        is_active: true,
-    });
-
-    useEffect(() => {
-        async function loadCategories() {
-            const token =
-            localStorage.getItem("token");
-
-            if (!token) return;
-
-            const result =
-            await getAdminCategories(token);
-
-            setCategories(result.data);
-        }
-
-        loadCategories();
-    }, []);
-
-    function handleImageChange(
-    e: React.ChangeEvent<HTMLInputElement>
-    ) {
-        const file =
-            e.target.files?.[0];
-
-        if (!file) return;
-
-        setImage(file);
-
-        setPreview(
-            URL.createObjectURL(file)
-    );}
-
-    async function handleSubmit(
-    e: React.FormEvent
-    ) {
-    e.preventDefault();
-
-        const token =
-            localStorage.getItem("token");
-
-        if (!token) return;
-
-        if (!image) {
-            alert("Image required");
-            return;
-        }
-
-        try {
-            setLoading(true);
-
-            const formData =
-            new FormData();
-
-            formData.append(
-            "category_id",
-            form.category_id
-            );
-
-            formData.append(
-            "name",
-            form.name
-            );
-
-            formData.append(
-            "description",
-            form.description
-            );
-
-            formData.append(
-            "price",
-            form.price
-            );
-
-            formData.append(
-            "stock",
-            form.stock
-            );
-
-            formData.append(
-            "true",
-            String(form.is_active)
-            );
-
-            formData.append(
-            "image",
-            image
-            );
-
-            const result =
-            await createProduct(
-                token,
-                formData
-            );
-
-            if (!result.success) {
-            alert(
-                result.message ||
-                "Create failed"
-            );
-            return;
-            }
-
-            alert(
-            "Product created"
-            );
-
-            router.push(
-            "/admin/products"
-            );
-
-        } finally {
-            setLoading(false);
-        }
+      setCategories(result.data);
     }
 
-return (
-    <form onSubmit={handleSubmit} className="mt-10 space-y-6">
+    loadCategories();
+  }, []);
 
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    setImage(file);
+    setPreview(URL.createObjectURL(file));
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+
+    const token = localStorage.getItem("token");
+
+    if (!token) return;
+
+    if (!image) {
+      showToast("Image is required", "error");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const formData = new FormData();
+
+      formData.append("category_id", form.category_id);
+      formData.append("name", form.name);
+      formData.append("description", form.description);
+      formData.append("price", form.price);
+      formData.append("stock", form.stock);
+      formData.append("is_active", form.is_active ? "1" : "0");
+      formData.append("image", image);
+
+      const result = await createProduct(token, formData);
+
+      if (!result.success) {
+        showToast(result.message || "Create failed", "error");
+        return;
+      }
+
+      showToast("Product created!", "success");
+      router.push("/admin/products");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <motion.form
+      onSubmit={handleSubmit}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mt-10 space-y-6 max-w-2xl"
+    >
+      <h1 className="text-2xl font-bold">Create Product</h1>
+
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium text-gray-600">Category</label>
         <select
-            value={form.category_id}
-            onChange={(e) =>
-                setForm({
-                ...form,
-                category_id:
-                    e.target.value,
-                })
-            }
-            className="w-full border rounded-xl px-4 py-4"
-            >
-            <option value="">
-                Select Category
+          value={form.category_id}
+          onChange={(e) => setForm({ ...form, category_id: e.target.value })}
+          className="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-sm focus:border-black transition-colors"
+        >
+          <option value="">Select Category</option>
+
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
             </option>
-
-            {categories.map(
-                (category) => (
-                <option
-                    key={category.id}
-                    value={category.id}
-                >
-                    {category.name}
-                </option>
-                )
-            )}
+          ))}
         </select>
+      </div>
 
-        <input 
-            type="text"
-            placeholder="Product Name"
-            value={form.name}
-            onChange={(e) =>
-                setForm({
-                ...form,
-                name:
-                    e.target.value,
-                })
-            }
-            className="w-full border rounded-xl px-4 py-4"
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium text-gray-600">Product Name</label>
+        <input
+          type="text"
+          placeholder="Product name"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          className="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-sm placeholder:text-gray-300 focus:border-black transition-colors"
         />
+      </div>
 
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium text-gray-600">Description</label>
         <textarea
-            rows={5}
-            placeholder="Description"
-            value={form.description}
-            onChange={(e) =>
-                setForm({
-                ...form,
-                description:
-                    e.target.value,
-                })
-            }
-            className="w-full border rounded-xl px-4 py-4"
+          rows={4}
+          placeholder="Product description"
+          value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          className="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-sm placeholder:text-gray-300 focus:border-black transition-colors resize-none"
         />
+      </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
-            <input
-                type="number"
-                placeholder="Price"
-                value={form.price}
-                onChange={(e) =>
-                    setForm({
-                    ...form,
-                    price:
-                        e.target.value,
-                    })
-                }
-                className="w-full border rounded-xl px-4 py-4"
-            />
-            <input
-                type="number"
-                placeholder="Stock"
-                value={form.stock}
-                onChange={(e) =>
-                    setForm({
-                    ...form,
-                    stock:
-                        e.target.value,
-                    })
-                }
-                className="w-full border rounded-xl px-4 py-4"
-            />
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-gray-600">Price (IDR)</label>
+          <input
+            type="number"
+            placeholder="150000"
+            value={form.price}
+            onChange={(e) => setForm({ ...form, price: e.target.value })}
+            className="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-sm placeholder:text-gray-300 focus:border-black transition-colors"
+          />
         </div>
 
-        <input
-            type="file"
-            accept="image/*"
-            onChange={
-                handleImageChange
-            }
-        />
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-gray-600">Stock</label>
+          <input
+            type="number"
+            placeholder="50"
+            value={form.stock}
+            onChange={(e) => setForm({ ...form, stock: e.target.value })}
+            className="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-sm placeholder:text-gray-300 focus:border-black transition-colors"
+          />
+        </div>
+      </div>
 
-        {preview && (
-            <img
-                src={preview}
-                alt="Preview"
-                className="w-40 h-40 object-cover rounded-xl"
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium text-gray-600">Product Image</label>
+
+        <div className="flex items-center gap-4">
+          <label className="flex items-center gap-2 px-4 py-3 border border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-black transition-colors">
+            <Upload size={18} className="text-gray-400" />
+            <span className="text-sm text-gray-500">Choose file</span>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
             />
+          </label>
+
+          {preview && (
+            <img
+              src={preview}
+              alt="Preview"
+              className="w-20 h-20 object-cover rounded-xl"
+            />
+          )}
+        </div>
+      </div>
+
+      <motion.button
+        type="submit"
+        disabled={loading}
+        whileTap={{ scale: 0.98 }}
+        className="bg-black text-white px-8 py-3.5 rounded-full text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-colors flex items-center gap-2"
+      >
+        {loading ? (
+          <>
+            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            Creating...
+          </>
+        ) : (
+          "Create Product"
         )}
-
-        <button
-            type="submit"
-            disabled={loading}
-            className="bg-black text-white px-8 py-4 rounded-xl"
-            >
-            {loading
-                ? "Creating..."
-                : "Create Product"}
-        </button>
-
-    </form>
-);
+      </motion.button>
+    </motion.form>
+  );
 }

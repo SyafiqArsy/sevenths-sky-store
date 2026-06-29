@@ -1,7 +1,5 @@
 import Image from "next/image";
-import {getProduct,getProducts,} from "@/src/lib/api";
-import QuantitySelector from "@/src/components/product/QuantitySelector";
-import SizeSelector from "@/src/components/product/SizeSelector";
+import { getProduct, getProducts } from "@/src/lib/api";
 import ProductCard from "@/src/components/product/ProductCard";
 import ProductActions from "@/src/components/product/ProductActions";
 
@@ -21,23 +19,20 @@ export default async function ProductDetailPage({
   const products = await getProducts();
 
   const relatedProducts = products
-  .filter(
-    (item: any) =>
-      item.category.slug ===
-        product.category.slug &&
-      item.slug !== product.slug
-  )
-  .slice(0, 4);
+    .filter(
+      (item: any) =>
+        item.category.slug === product.category.slug &&
+        item.slug !== product.slug
+    )
+    .slice(0, 4);
 
   return (
     <main className="pt-32 pb-24">
       <div className="max-w-7xl mx-auto px-6">
-
         <div className="grid lg:grid-cols-2 gap-16">
-
           {/* Image */}
           <div>
-            <div className="relative aspect-square rounded-3xl overflow-hidden bg-gray-100">
+            <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-100">
               <Image
                 src={product.image}
                 alt={product.name}
@@ -48,88 +43,78 @@ export default async function ProductDetailPage({
           </div>
 
           {/* Content */}
-          <div>
-
-            <p className="uppercase tracking-[0.2em] text-sm text-gray-500">
+          <div className="flex flex-col">
+            <p className="uppercase tracking-[0.2em] text-xs text-gray-400">
               {product.category.name}
             </p>
 
-            <h1 className="mt-4 text-5xl font-bold">
+            <h1 className="mt-4 text-4xl md:text-5xl font-bold tracking-tight">
               {product.name}
             </h1>
 
-            <p className="mt-6 text-3xl font-semibold">
-              Rp{" "}
-              {Number(product.price).toLocaleString("id-ID")}
+            <p className="mt-6 text-3xl font-bold">
+              Rp {Number(product.price).toLocaleString("id-ID")}
             </p>
 
-            <p className="mt-8 text-gray-600 leading-relaxed">
+            <div className="mt-8 h-px bg-gray-100" />
+
+            <p className="mt-8 text-gray-500 leading-relaxed text-sm">
               {product.description}
             </p>
 
-            <div className="mt-8">
-            <p className="text-sm text-gray-500 mb-3">
-                Stock Available
-            </p>
-
-            <p className="font-semibold">
-                {product.stock}
-            </p>
+            <div className="mt-6 flex items-center gap-2">
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  product.stock > 0
+                    ? "bg-emerald-500"
+                    : "bg-red-500"
+                }`}
+              />
+              <p className="text-sm text-gray-500">
+                {product.stock > 0
+                  ? `${product.stock} in stock`
+                  : "Out of stock"}
+              </p>
             </div>
 
-            <div className="mt-10">
-            <p className="font-medium mb-4">
-                Size
-            </p>
-
-            <SizeSelector />
+            <div className="mt-auto pt-8">
+              <ProductActions
+                productId={product.id}
+                stock={product.stock}
+              />
             </div>
-
-            <div className="mt-10">
-            <p className="font-medium mb-4">
-                Quantity
-            </p>
-
-            </div>
-
-            <ProductActions
-              productId={product.id}
-              stock={product.stock}
-            />
-
           </div>
-
         </div>
-
       </div>
 
+      {/* Related Products */}
+      {relatedProducts.length > 0 && (
         <section className="mt-32">
-        <div className="max-w-7xl mx-auto px-6">
-
-            <p className="uppercase tracking-[0.3em] text-sm text-gray-500">
-            Recommended
+          <div className="max-w-7xl mx-auto px-6">
+            <p className="uppercase tracking-[0.3em] text-sm text-gray-400">
+              Recommended
             </p>
 
-            <h2 className="mt-3 text-4xl font-bold">
-            You May Also Like
+            <h2 className="mt-3 text-3xl font-bold">
+              You May Also Like
             </h2>
 
-            <div className="mt-12 grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {relatedProducts.map((item: any) => (
+            <div className="mt-12 grid grid-cols-2 lg:grid-cols-4 gap-6">
+              {relatedProducts.map((item: any) => (
                 <ProductCard
-                key={item.id}
-                slug={item.slug}
-                name={item.name}
-                category={item.category.name}
-                image={item.image}
-                price={Number(item.price)}
+                  key={item.id}
+                  slug={item.slug}
+                  name={item.name}
+                  category={item.category.name}
+                  image={item.image}
+                  price={Number(item.price)}
+                  productId={item.id}
                 />
-            ))}
+              ))}
             </div>
-
-        </div>
+          </div>
         </section>
-
+      )}
     </main>
   );
 }

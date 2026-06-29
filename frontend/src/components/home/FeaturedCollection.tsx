@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 const firstRow = [
   "/images/featured/1.jpg",
@@ -29,16 +32,22 @@ const secondRowLoop = [
 
 export default function FeaturedCollection() {
   return (
-    <section id="featured-collection" className="py-24 bg-black overflow-hidden">
-      <div className="text-center mb-12">
+    <section id="featured-collection" className="py-24 bg-black overflow-hidden" data-cursor="explore">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.6 }}
+        className="text-center mb-12"
+      >
         <p className="uppercase tracking-[0.3em] text-gray-400 text-sm">
           Featured Collection
         </p>
 
-        <h2 className="mt-4 text-white text-5xl font-bold">
+        <h2 className="mt-4 text-white text-3xl md:text-5xl font-bold">
           Inspired By Modern Streetwear
         </h2>
-      </div>
+      </motion.div>
 
       <div className="space-y-6">
         {/* Row 1 */}
@@ -49,13 +58,13 @@ export default function FeaturedCollection() {
             {firstRowLoop.map((image, index) => (
               <div
                 key={index}
-                className="relative w-[280px] h-[350px] flex-shrink-0 overflow-hidden rounded-2xl"
+                className="group relative w-[200px] h-[260px] md:w-[280px] md:h-[350px] flex-shrink-0 overflow-hidden rounded-2xl"
               >
                 <Image
                   src={image}
                   alt=""
                   fill
-                  className="object-cover"
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
               </div>
             ))}
@@ -70,13 +79,13 @@ export default function FeaturedCollection() {
             {secondRowLoop.map((image, index) => (
               <div
                 key={index}
-                className="relative w-[280px] h-[350px] flex-shrink-0 overflow-hidden rounded-2xl"
+                className="group relative w-[200px] h-[260px] md:w-[280px] md:h-[350px] flex-shrink-0 overflow-hidden rounded-2xl"
               >
                 <Image
                   src={image}
                   alt=""
                   fill
-                  className="object-cover"
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
               </div>
             ))}

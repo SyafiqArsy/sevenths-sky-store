@@ -2,10 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { ShoppingBag } from "lucide-react";
 
 import QuantitySelector from "./QuantitySelector";
 import { addToCart } from "@/src/lib/cart";
 import { useCart } from "@/src/context/CartContext";
+import { useToast } from "@/src/context/ToastContext";
+import { startCursorLoading, stopCursorLoading } from "@/src/lib/cursorLoading";
 
 type Props = {
   productId: number;
@@ -17,18 +21,16 @@ export default function ProductActions({
   stock,
 }: Props) {
   const router = useRouter();
+  const { showToast } = useToast();
 
-  const [quantity, setQuantity] =
-    useState(1);
+  const [quantity, setQuantity] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [added, setAdded] = useState(false);
 
-  const [loading, setLoading] =
-    useState(false);
-
-const { refreshCart } = useCart();
+  const { refreshCart } = useCart();
 
   async function handleAddToCart() {
-    const token =
-      localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
     if (!token) {
       router.push("/login");
@@ -36,6 +38,7 @@ const { refreshCart } = useCart();
     }
 
     setLoading(true);
+    startCursorLoading();
 
     try {
       const result = await addToCart(
@@ -45,22 +48,26 @@ const { refreshCart } = useCart();
       );
 
       if (!result.success) {
-        alert(result.message);
+        showToast(result.message, "error");
         return;
       }
 
       await refreshCart();
 
-      alert("Added to cart");
+      setAdded(true);
+      showToast("Added to cart successfully!", "success");
+
+      setTimeout(() => setAdded(false), 2000);
     } finally {
       setLoading(false);
+      stopCursorLoading();
     }
   }
 
   return (
     <>
-      <div className="mt-10">
-        <p className="font-medium mb-4">
+      <div className="mt-8">
+        <p className="text-sm font-medium mb-3 text-gray-600">
           Quantity
         </p>
 
@@ -71,15 +78,23 @@ const { refreshCart } = useCart();
         />
       </div>
 
-      <button
+      <motion.button
         onClick={handleAddToCart}
         disabled={loading}
-        className="mt-10 w-full bg-black text-white py-4 rounded-full font-medium hover:opacity-90 transition"
+        whileTap={{ scale: 0.98 }}
+        className={`mt-8 w-full py-4 rounded-full font-medium text-sm uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 ${
+          added
+            ? "bg-emerald-500 text-white"
+            : "bg-black text-white hover:bg-gray-800"
+        }`}
       >
+        <ShoppingBag size={18} />
         {loading
           ? "Adding..."
+          : added
+          ? "Added!"
           : "Add To Cart"}
-      </button>
+      </motion.button>
     </>
   );
 }

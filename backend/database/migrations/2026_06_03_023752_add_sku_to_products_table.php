@@ -12,8 +12,7 @@ return new class extends Migration
 
             $table->string('sku')
                 ->unique()
-                ->nullable()
-                ->after('category_id');
+                ->nullable();
 
         });
     }

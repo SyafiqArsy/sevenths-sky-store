@@ -1,234 +1,209 @@
 "use client";
 
-import {useEffect,useState,} from "react";
-import {getAdminProducts,deleteProduct,} from "@/src/lib/admin";
+import { useEffect, useState } from "react";
+import { getAdminProducts, deleteProduct } from "@/src/lib/admin";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { Search, Plus, Pencil, Trash2 } from "lucide-react";
+import ConfirmModal from "@/src/components/ui/ConfirmModal";
 
 type Product = {
   id: number;
   name: string;
   sku: string;
-
   image: string;
-
   price: string;
   stock: number;
-
   is_active: boolean;
-
   category: {
     name: string;
   };
 };
 
 export default function AdminProductsView() {
-  const [products, setProducts] =
-    useState<Product[]>([]);
-
-  const [loading, setLoading] =
-    useState(true);
-
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const [search, setSearch] = useState("");
 
-  const [search, setSearch] =
-  useState("");
+  const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
 
   async function loadProducts() {
-    const token =
-      localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
     if (!token) return;
 
-    const result =
-      await getAdminProducts(
-        token,
-        search
-      );
+    const result = await getAdminProducts(token, search);
 
     setProducts(result.data);
-
     setLoading(false);
   }
 
   useEffect(() => {
     loadProducts();
-  }, []);
+  }, [search]);
 
-  async function handleDelete(
-    id: number
-  ) {
-    const confirmed =
-      confirm(
-        "Delete this product?"
-      );
+  async function confirmDelete() {
+    if (deleteTarget === null) return;
 
-    if (!confirmed) return;
-
-    const token =
-      localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
     if (!token) return;
 
-    await deleteProduct(
-      token,
-      id
-    );
+    await deleteProduct(token, deleteTarget);
+
+    setDeleteTarget(null);
 
     loadProducts();
   }
 
   if (loading) {
     return (
-      <p className="mt-8">
+      <div className="mt-10 flex items-center gap-3 text-gray-400">
+        <div className="w-5 h-5 border-2 border-gray-300 border-t-black rounded-full animate-spin" />
         Loading products...
-      </p>
+      </div>
     );
   }
 
   return (
-    <div className="mt-10">
+    <>
+      <div className="mt-10">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h1 className="text-2xl font-bold">Products</h1>
 
-      <div className="flex justify-end items-center gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-300" />
+              <input
+                type="text"
+                placeholder="Search..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm w-full sm:w-64 placeholder:text-gray-300 focus:border-black transition-colors"
+              />
+            </div>
 
-        <input
-          type="text"
-          placeholder="Search product..."
-          value={search}
-          onChange={(e) =>
-            setSearch(
-              e.target.value
-            )
-          }
-          className="border rounded-xl px-4 py-3 w-80"
-        />
+            <Link
+              href="/admin/products/create"
+              className="bg-black !text-white px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 hover:bg-gray-800 transition-colors"
+            >
+              <Plus size={16} />
+              Create
+            </Link>
+          </div>
+        </div>
 
-        <Link
-          href="/admin/products/create"
-          className="bg-black !text-white px-5 py-3 rounded-xl"
-        >
-          + Create Product
-        </Link>
+        <div className="border border-gray-100 rounded-2xl overflow-hidden bg-white shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50/80">
+                  <th className="p-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Image
+                  </th>
+                  <th className="p-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Product
+                  </th>
+                  <th className="p-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider hidden md:table-cell">
+                    Category
+                  </th>
+                  <th className="p-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Price
+                  </th>
+                  <th className="p-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider hidden md:table-cell">
+                    Stock
+                  </th>
+                  <th className="p-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="p-4 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Action
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {products.map((product, index) => (
+                  <motion.tr
+                    key={product.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: index * 0.03 }}
+                    className="border-t border-gray-50 hover:bg-gray-50/50 transition-colors"
+                  >
+                    <td className="p-4">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-12 h-12 object-cover rounded-xl"
+                      />
+                    </td>
+
+                    <td className="p-4 font-medium text-sm">
+                      {product.name}
+                    </td>
+
+                    <td className="p-4 text-sm text-gray-500 hidden md:table-cell">
+                      {product.category.name}
+                    </td>
+
+                    <td className="p-4 text-sm font-medium">
+                      Rp {Number(product.price).toLocaleString("id-ID")}
+                    </td>
+
+                    <td className="p-4 text-sm hidden md:table-cell">
+                      {product.stock}
+                    </td>
+
+                    <td className="p-4">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          product.is_active
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-red-50 text-red-700"
+                        }`}
+                      >
+                        {product.is_active ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+
+                    <td className="p-4">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() =>
+                            router.push(`/admin/products/${product.id}/edit`)
+                          }
+                          className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-blue-500 transition-colors"
+                        >
+                          <Pencil size={16} />
+                        </button>
+
+                        <button
+                          onClick={() => setDeleteTarget(product.id)}
+                          className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
-      <div className="overflow-x-auto">
-
-      <table className="w-full border">
-
-        <thead>
-          <tr className="border-b bg-gray-50">
-            <th className="p-4 text-left">
-              Image
-            </th>
-
-            <th className="p-4 text-left">
-              Product
-            </th>
-
-            <th className="p-4 text-left">
-              Category
-            </th>
-
-            <th className="p-4 text-left">
-              Price
-            </th>
-
-            <th className="p-4 text-left">
-              Stock
-            </th>
-
-            <th className="p-4 text-left">
-              Status
-            </th>
-
-            <th className="p-4 text-left">
-              Action
-            </th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {products.map(
-            (product) => (
-              <tr
-                key={product.id}
-                className="border-b"
-              >
-                <td className="p-4">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-16 h-16 object-cover rounded-lg"
-                  />
-                </td>
-
-                <td className="p-4">
-                  {product.name}
-                </td>
-
-                <td className="p-4">
-                  {
-                    product.category
-                      .name
-                  }
-                </td>
-
-                <td className="p-4">
-                  Rp{" "}
-                  {Number(
-                    product.price
-                  ).toLocaleString(
-                    "id-ID"
-                  )}
-                </td>
-
-                <td className="p-4">
-                  {product.stock}
-                </td>
-
-                <td className="p-4">
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm ${
-                      product.is_active
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {product.is_active
-                      ? "Active"
-                      : "Inactive"}
-                  </span>
-                </td>
-
-                <td className="p-4 flex gap-4">
-                  <button
-                    onClick={() =>
-                      router.push(
-                        `/admin/products/${product.id}/edit`
-                      )
-                    }
-                    className="text-blue-500"
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      handleDelete(product.id)
-                    }
-                    className="text-red-500"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            )
-          )}
-        </tbody>
-
-      </table>
-
-      </div>
-    </div>
+      <ConfirmModal
+        open={deleteTarget !== null}
+        title="Delete Product"
+        message="Are you sure you want to delete this product? This action cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
+    </>
   );
 }

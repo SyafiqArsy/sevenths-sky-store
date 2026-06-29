@@ -1,5 +1,6 @@
 import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
+import BrandIntro from "@/src/components/intro/BrandIntro";
 
 export default function SiteLayout({
   children,
@@ -8,6 +9,7 @@ export default function SiteLayout({
 }) {
   return (
     <>
+      <BrandIntro />
       <Navbar />
 
       <main className="flex-1">

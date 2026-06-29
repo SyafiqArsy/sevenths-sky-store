@@ -6,6 +6,10 @@ import "./globals.css";
 
 import { AuthProvider } from "@/src/context/AuthContext";
 import { CartProvider } from "@/src/context/CartContext";
+import { ToastProvider } from "@/src/context/ToastContext";
+import SmoothScroll from "@/src/components/ui/SmoothScroll";
+import CustomCursor from "@/src/components/ui/CustomCursor";
+import ClickRipple from "@/src/components/ui/ClickRipple";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,11 +47,17 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
 
-        <AuthProvider>
-          <CartProvider>
-            {children}
-          </CartProvider>
-        </AuthProvider>
+        <SmoothScroll>
+          <AuthProvider>
+            <CartProvider>
+              <ToastProvider>
+                <CustomCursor />
+                <ClickRipple />
+                {children}
+              </ToastProvider>
+            </CartProvider>
+          </AuthProvider>
+        </SmoothScroll>
 
       </body>
     </html>

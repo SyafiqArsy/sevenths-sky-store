@@ -1,50 +1,26 @@
 "use client";
 
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { getCategoryById, updateCategory } from "@/src/lib/admin";
+import { useToast } from "@/src/context/ToastContext";
 
-import {
-  useRouter,
-} from "next/navigation";
-
-import {
-  getCategoryById,
-  updateCategory,
-} from "@/src/lib/admin";
-
-export default function EditCategoryForm({
-  id,
-}: {
-  id: number;
-}) {
-
+export default function EditCategoryForm({ id }: { id: number }) {
   const router = useRouter();
+  const { showToast } = useToast();
 
-  const [name, setName] =
-    useState("");
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [saving, setSaving] =
-    useState(false);
+  const [name, setName] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-
     async function loadCategory() {
-
-      const token =
-        localStorage.getItem("token");
+      const token = localStorage.getItem("token");
 
       if (!token) return;
 
-      const category =
-        await getCategoryById(
-          token,
-          id
-        );
+      const category = await getCategoryById(token, id);
 
       if (category) {
         setName(category.name);
@@ -54,46 +30,27 @@ export default function EditCategoryForm({
     }
 
     loadCategory();
-
   }, [id]);
 
-  async function handleSubmit(
-    e: React.FormEvent
-  ) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    const token =
-      localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
     if (!token) return;
 
     try {
-
       setSaving(true);
 
-      const result =
-        await updateCategory(
-          token,
-          id,
-          { name }
-        );
+      const result = await updateCategory(token, id, { name });
 
       if (!result.success) {
-        alert(
-          result.message ||
-          "Update failed"
-        );
+        showToast(result.message || "Update failed", "error");
         return;
       }
 
-      alert(
-        "Category updated"
-      );
-
-      router.push(
-        "/admin/categories"
-      );
-
+      showToast("Category updated!", "success");
+      router.push("/admin/categories");
     } finally {
       setSaving(false);
     }
@@ -101,39 +58,47 @@ export default function EditCategoryForm({
 
   if (loading) {
     return (
-      <p className="mt-10">
+      <div className="mt-10 flex items-center gap-3 text-gray-400">
+        <div className="w-5 h-5 border-2 border-gray-300 border-t-black rounded-full animate-spin" />
         Loading...
-      </p>
+      </div>
     );
   }
 
   return (
-    <form
+    <motion.form
       onSubmit={handleSubmit}
-      className="mt-10 space-y-6"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mt-10 space-y-6 max-w-lg"
     >
+      <h1 className="text-2xl font-bold">Edit Category</h1>
 
-      <input
-        type="text"
-        value={name}
-        onChange={(e) =>
-          setName(
-            e.target.value
-          )
-        }
-        className="w-full border rounded-xl px-4 py-4"
-      />
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium text-gray-600">Category Name</label>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-sm focus:border-black transition-colors"
+        />
+      </div>
 
-      <button
+      <motion.button
         type="submit"
         disabled={saving}
-        className="bg-black text-white px-8 py-4 rounded-xl"
+        whileTap={{ scale: 0.98 }}
+        className="bg-black text-white px-8 py-3.5 rounded-full text-sm font-medium uppercase tracking-wider hover:bg-gray-800 transition-colors flex items-center gap-2"
       >
-        {saving
-          ? "Saving..."
-          : "Update Category"}
-      </button>
-
-    </form>
+        {saving ? (
+          <>
+            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            Saving...
+          </>
+        ) : (
+          "Update Category"
+        )}
+      </motion.button>
+    </motion.form>
   );
 }

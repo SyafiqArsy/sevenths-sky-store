@@ -11,8 +11,7 @@ return new class extends Migration
         Schema::table('products', function (Blueprint $table) {
 
             $table->string('image_public_id')
-                ->nullable()
-                ->after('image');
+                ->nullable();
 
         });
     }

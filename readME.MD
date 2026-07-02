@@ -4,7 +4,7 @@
 
   <!-- Logo / Title -->
   <h1>☁️ SEVENTH SKY STORE</h1>
-  <p><strong>Minimal Streetwear. Maximum Confidence.</strong></p>
+  <p><strong>Elevate Your Style.</strong></p>
   <p>A full-stack e-commerce platform for a premium streetwear brand — built with <strong>Laravel</strong> & <strong>Next.js</strong>, featuring Midtrans payment integration, WebGL visual effects, and a complete admin dashboard.</p>
 
   <br />

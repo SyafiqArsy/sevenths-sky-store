@@ -19,16 +19,9 @@ const secondRow = [
   "/images/featured/10.jpg",
 ];
 
-const firstRowLoop = [
-  ...firstRow,
-  ...firstRow,
-  ...firstRow,
-];
-const secondRowLoop = [
-  ...secondRow,
-  ...secondRow,
-  ...secondRow,
-];
+// Duplikasi untuk seamless loop
+const firstRowLoop = [...firstRow, ...firstRow, ...firstRow];
+const secondRowLoop = [...secondRow, ...secondRow, ...secondRow];
 
 export default function FeaturedCollection() {
   return (
@@ -50,11 +43,11 @@ export default function FeaturedCollection() {
       </motion.div>
 
       <div className="space-y-6">
-        {/* Row 1 */}
+        {/* Row 1 — berjalan dari kanan ke kiri */}
         <div className="relative overflow-hidden">
-            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-32 bg-gradient-to-r from-black to-transparent" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-32 bg-gradient-to-l from-black to-transparent" />
-            <div className="flex w-max gap-6 marquee-left">
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-32 bg-gradient-to-r from-black to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-32 bg-gradient-to-l from-black to-transparent" />
+          <div className="flex w-max gap-6 marquee-left">
             {firstRowLoop.map((image, index) => (
               <div
                 key={index}
@@ -62,7 +55,7 @@ export default function FeaturedCollection() {
               >
                 <Image
                   src={image}
-                  alt=""
+                  alt={`Featured ${index + 1}`}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
@@ -71,11 +64,11 @@ export default function FeaturedCollection() {
           </div>
         </div>
 
-        {/* Row 2 */}
+        {/* Row 2 — berjalan dari kiri ke kanan */}
         <div className="relative overflow-hidden">
-            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-32 bg-gradient-to-r from-black to-transparent" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-32 bg-gradient-to-l from-black to-transparent" />
-            <div className="flex w-max gap-6 marquee-right">
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-32 bg-gradient-to-r from-black to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-32 bg-gradient-to-l from-black to-transparent" />
+          <div className="flex w-max gap-6 marquee-right">
             {secondRowLoop.map((image, index) => (
               <div
                 key={index}
@@ -83,7 +76,7 @@ export default function FeaturedCollection() {
               >
                 <Image
                   src={image}
-                  alt=""
+                  alt={`Featured ${index + 6}`}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />

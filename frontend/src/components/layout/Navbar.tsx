@@ -37,11 +37,15 @@ export default function Navbar() {
     return () => { document.body.style.overflow = ""; };
   }, [mobileOpen]);
 
-  const navBg = isHomePage
-    ? scrolled
-      ? "bg-white/90 backdrop-blur-xl shadow-sm text-black"
-      : "bg-transparent text-white"
-    : "bg-white/90 backdrop-blur-xl shadow-sm text-black";
+  const isCollectionsPage = pathname === "/collections";
+
+  const navBg = isCollectionsPage
+    ? "bg-black text-white"
+    : isHomePage
+      ? scrolled
+        ? "bg-white/90 backdrop-blur-xl shadow-sm text-black"
+        : "bg-transparent text-white"
+      : "bg-white/90 backdrop-blur-xl shadow-sm text-black";
 
   return (
     <>
@@ -67,7 +71,7 @@ export default function Navbar() {
             </Link>
 
             <Link
-              href="/#featured-collection"
+              href="/collections"
               className="hover:opacity-60 transition-opacity"
             >
               Collections
@@ -198,7 +202,7 @@ export default function Navbar() {
               </Link>
 
               <Link
-                href="/#featured-collection"
+                href="/collections"
                 className="text-2xl font-medium py-3 block"
               >
                 Collections

@@ -54,6 +54,9 @@ export default function CustomCursor() {
     setLoading(false);
   }, [pathname]);
 
+  // Force white cursor on collections page
+  const isCollectionsPage = pathname === "/collections";
+
   // Detect link clicks to show loading
   useEffect(() => {
     if (isTouch) return;
@@ -146,8 +149,8 @@ export default function CustomCursor() {
   if (isTouch) return null;
 
   const ringSize = cursorType === "explore" ? 80 : cursorType === "view" ? 60 : cursorType === "pointer" ? 50 : 36;
-  const cursorColor = isLight ? "#111111" : "#ffffff";
-  const borderColor = isLight ? "rgba(17, 17, 17, 0.6)" : "rgba(255, 255, 255, 0.6)";
+  const cursorColor = isCollectionsPage ? "#ffffff" : isLight ? "#111111" : "#ffffff";
+  const borderColor = isCollectionsPage ? "rgba(255, 255, 255, 0.6)" : isLight ? "rgba(17, 17, 17, 0.6)" : "rgba(255, 255, 255, 0.6)";
   const spinnerSize = loading ? ringSize + 12 : ringSize;
 
   return (

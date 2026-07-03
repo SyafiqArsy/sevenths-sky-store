@@ -1,5 +1,5 @@
 import Navbar from "@/src/components/layout/Navbar";
-import Footer from "@/src/components/layout/Footer";
+import ConditionalFooter from "@/src/components/layout/ConditionalFooter";
 import BrandIntro from "@/src/components/intro/BrandIntro";
 
 export default function SiteLayout({
@@ -16,7 +16,7 @@ export default function SiteLayout({
         {children}
       </main>
 
-      <Footer />
+      <ConditionalFooter />
     </>
   );
 }

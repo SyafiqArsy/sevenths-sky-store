@@ -28,7 +28,8 @@ class ProductStoreRequest extends FormRequest
 
             'description' => [
                 'nullable',
-                'string'
+                'string',
+                'max:5000'
             ],
 
             'price' => [

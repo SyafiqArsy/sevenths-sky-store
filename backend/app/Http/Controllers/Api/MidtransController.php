@@ -12,7 +12,9 @@ class MidtransController extends Controller
     public function notification(Request $request)
     {
         Log::info('MIDTRANS WEBHOOK RECEIVED', [
-            'payload' => $request->all(),
+            'order_id' => $request->order_id,
+            'transaction_status' => $request->transaction_status,
+            'payment_type' => $request->payment_type,
         ]);
 
         /*

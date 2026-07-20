@@ -13,11 +13,17 @@ class OrderController extends Controller
         $orders = Order::with('items')
             ->where('user_id', $request->user()->id)
             ->latest()
-            ->get();
+            ->paginate($request->input('per_page', 15));
 
         return response()->json([
             'success' => true,
-            'data' => $orders,
+            'data' => $orders->items(),
+            'meta' => [
+                'current_page' => $orders->currentPage(),
+                'last_page' => $orders->lastPage(),
+                'per_page' => $orders->perPage(),
+                'total' => $orders->total(),
+            ],
         ]);
     }
 
@@ -50,29 +56,39 @@ class OrderController extends Controller
 
     public function adminIndex(Request $request)
     {
+        $search = $request->search
+            ? addcslashes($request->search, '%_')
+            : null;
+
         $orders = Order::with([
             'user',
             'items'
         ])
 
         ->when(
-            $request->search,
+            $search,
             fn ($query) =>
             $query->where(
                 'order_number',
                 'like',
                 '%' .
-                $request->search .
+                $search .
                 '%'
             )
         )
 
         ->latest()
-        ->get();
+        ->paginate($request->input('per_page', 15));
 
         return response()->json([
             'success' => true,
-            'data' => $orders,
+            'data' => $orders->items(),
+            'meta' => [
+                'current_page' => $orders->currentPage(),
+                'last_page' => $orders->lastPage(),
+                'per_page' => $orders->perPage(),
+                'total' => $orders->total(),
+            ],
         ]);
     }
 

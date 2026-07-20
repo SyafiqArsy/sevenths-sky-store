@@ -24,12 +24,15 @@ Route::post(
 
 /*
 |--------------------------------------------------------------------------
-| Public Routes
+| Public Routes — Rate Limited
 |--------------------------------------------------------------------------
 */
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register'])
+    ->middleware('throttle:5,1');
+
+Route::post('/login', [AuthController::class, 'login'])
+    ->middleware('throttle:10,1');
 
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{slug}', [CategoryController::class, 'show']);
@@ -48,12 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Auth
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
-
-    // Dasboard
-    Route::get(
-        '/admin/dashboard',
-        [AdminDashboardController::class, 'index']
-    );
+    Route::post('/logout-all', [AuthController::class, 'logoutAll']);
 
     // Cart
     Route::get('/cart', [CartController::class, 'index']);
@@ -73,11 +71,11 @@ Route::middleware('auth:sanctum')->group(function () {
         [CartController::class, 'destroy']
     );
 
-    // Checkout
+    // Checkout — Rate Limited
     Route::post(
         '/checkout',
         [CheckoutController::class, 'store']
-    );
+    )->middleware('throttle:10,1');
 
     // Orders
     Route::get(
@@ -101,6 +99,12 @@ Route::middleware([
     'auth:sanctum',
     'admin'
 ])->prefix('admin')->group(function () {
+
+    // Dashboard
+    Route::get(
+        '/dashboard',
+        [AdminDashboardController::class, 'index']
+    );
 
     // Upload
     Route::post(

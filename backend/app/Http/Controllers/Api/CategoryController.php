@@ -25,16 +25,20 @@ class CategoryController extends Controller
 
     public function adminIndex(Request $request)
     {
+        $search = $request->search
+            ? addcslashes($request->search, '%_')
+            : null;
+
         $categories = Category::query()
 
             ->when(
-                $request->search,
+                $search,
                 fn ($query) =>
                 $query->where(
                     'name',
                     'like',
                     '%' .
-                    $request->search .
+                    $search .
                     '%'
                 )
             )

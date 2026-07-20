@@ -18,14 +18,18 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
+        $search = $request->search
+            ? addcslashes($request->search, '%_')
+            : null;
+
         $products = Product::with('category')
             ->when(
-                $request->search,
+                $search,
                 fn($query) =>
                 $query->where(
                     'name',
                     'like',
-                    '%' . $request->search . '%'
+                    '%' . $search . '%'
                 )
             )
             ->when(
@@ -42,34 +46,50 @@ class ProductController extends Controller
             )
             ->where('is_active', true)
             ->latest()
-            ->get();
+            ->paginate($request->input('per_page', 15));
 
         return response()->json([
             'success' => true,
-            'data' => $products,
+            'data' => $products->items(),
+            'meta' => [
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+                'per_page' => $products->perPage(),
+                'total' => $products->total(),
+            ],
         ]);
     }
 
     public function adminIndex(Request $request)
     {
+        $search = $request->search
+            ? addcslashes($request->search, '%_')
+            : null;
+
         $products = Product::with('category')
 
             ->when(
-                $request->search,
+                $search,
                 fn ($query) =>
                 $query->where(
                     'name',
                     'like',
-                    '%' . $request->search . '%'
+                    '%' . $search . '%'
                 )
             )
 
             ->latest()
-            ->get();
+            ->paginate($request->input('per_page', 15));
 
         return response()->json([
             'success' => true,
-            'data' => $products,
+            'data' => $products->items(),
+            'meta' => [
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+                'per_page' => $products->perPage(),
+                'total' => $products->total(),
+            ],
         ]);
     }
 
